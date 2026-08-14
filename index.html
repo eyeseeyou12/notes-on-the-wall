@@ -3,347 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notes on the Wall</title>
+<title>The Arcade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #f4f1ea;
-    --card: #fffdf7;
-    --ink: #2b2b2b;
-    --muted: #8a8478;
-    --accent: #e0575b;
-    --accent-2: #4a7c6f;
-    --border: #e5ddc9;
+  :root{
+    --bg1:#0b0e17;
+    --bg2:#131826;
+    --accent:#ff3d5a;
+    --accent2:#00e5ff;
+    --warn:#ffcc00;
+    --text:#fff6e0;
+    --tabbar-h:64px;
   }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    min-height: 100vh;
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%; width:100%;
+    background:radial-gradient(1200px 800px at 50% -10%, #1b2340 0%, var(--bg1) 60%);
+    color:var(--text);
+    font-family:'Press Start 2P', monospace;
+    overflow:hidden;
   }
-
-  header {
-    padding: 28px 20px 18px;
-    text-align: center;
-    border-bottom: 1px solid var(--border);
-    background: var(--card);
+  #tabbar{
+    height:var(--tabbar-h);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 16px;
+    background:linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.15));
+    border-bottom:3px solid #2a2f42;
+    overflow-x:auto;
+    white-space:nowrap;
   }
-
-  header h1 {
-    margin: 0 0 4px;
-    font-size: 1.6rem;
-    letter-spacing: -0.02em;
+  #tabbar .brand{
+    font-family:'Bangers', cursive;
+    font-size:22px;
+    letter-spacing:1px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    padding-right:14px;
+    margin-right:6px;
+    border-right:2px solid #2a2f42;
+    flex-shrink:0;
   }
-
-  header p {
-    margin: 0;
-    color: var(--muted);
-    font-size: 0.9rem;
+  .tab-btn{
+    font-family:'Bangers', cursive;
+    font-size:17px;
+    letter-spacing:1px;
+    color:var(--text);
+    background:#181d2c;
+    border:3px solid #2f3650;
+    border-radius:10px;
+    padding:9px 18px;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:transform .08s ease, background .15s ease, border-color .15s ease, color .15s ease;
   }
-
-  .status-banner {
-    background: #fff4d6;
-    border-bottom: 1px solid #eaddaa;
-    color: #7a5c00;
-    text-align: center;
-    font-size: 0.8rem;
-    padding: 6px 12px;
-    display: none;
+  .tab-btn:hover{ border-color:#4a5578; }
+  .tab-btn:active{ transform:translateY(2px); }
+  .tab-btn.active{
+    background:linear-gradient(180deg,#ffe066,#ffb703);
+    color:#1b1035;
+    border-color:#7a4b00;
+    box-shadow:0 3px 0 #7a4b00;
   }
-
-  .status-banner.show { display: block; }
-
-  main {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 24px 16px 80px;
+  .tab-btn .dot{
+    display:inline-block; width:8px; height:8px; border-radius:50%;
+    margin-right:8px; vertical-align:middle;
+    background:var(--accent2);
   }
+  .tab-btn.active .dot{ background:#1b1035; }
 
-  .composer {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-    margin-bottom: 28px;
+  #stage{
+    position:relative;
+    width:100%;
+    height:calc(100% - var(--tabbar-h));
   }
-
-  .composer .name-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-    font-size: 0.85rem;
-    color: var(--muted);
+  .app-pane{
+    position:absolute; inset:0;
+    display:none;
   }
-
-  .composer .name-row input {
-    border: none;
-    border-bottom: 1px dashed var(--border);
-    background: transparent;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--accent-2);
-    padding: 2px 4px;
-    width: 160px;
+  .app-pane.active{ display:block; }
+  .app-pane iframe{
+    width:100%; height:100%;
+    border:0;
+    background:#0b0e17;
+    display:block;
   }
-
-  .composer .name-row input:focus {
-    outline: none;
-    border-bottom-color: var(--accent-2);
+  .loading-msg{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; color:#7a86ad; letter-spacing:1px;
   }
-
-  .composer textarea {
-    width: 100%;
-    min-height: 70px;
-    resize: vertical;
-    border: none;
-    font-family: inherit;
-    font-size: 1rem;
-    line-height: 1.4;
-    padding: 4px;
-  }
-
-  .composer textarea:focus {
-    outline: none;
-  }
-
-  .composer-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 10px;
-  }
-
-  .char-count {
-    font-size: 0.75rem;
-    color: var(--muted);
-  }
-
-  button.post-btn {
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 999px;
-    padding: 9px 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.1s ease, opacity 0.15s ease;
-  }
-
-  button.post-btn:hover { opacity: 0.9; }
-  button.post-btn:active { transform: scale(0.97); }
-  button.post-btn:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-  }
-
-  .wall {
-    display: grid;
-    gap: 14px;
-  }
-
-  .note {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 16px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-    animation: fadeIn 0.25s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .note-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 6px;
-    gap: 10px;
-  }
-
-  .note-author {
-    font-weight: 700;
-    color: var(--accent-2);
-    font-size: 0.9rem;
-  }
-
-  .note-time {
-    font-size: 0.75rem;
-    color: var(--muted);
-    white-space: nowrap;
-  }
-
-  .note-body {
-    font-size: 0.98rem;
-    line-height: 1.5;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-
-  .empty-state {
-    text-align: center;
-    color: var(--muted);
-    padding: 40px 20px;
-    font-size: 0.9rem;
-  }
-
 </style>
 </head>
 <body>
 
-<div class="status-banner" id="statusBanner"></div>
+<div id="tabbar">
+  <span class="brand">THE ARCADE</span>
+  <button class="tab-btn" data-target="notes"><span class="dot"></span>NOTES ON THE WALL</button>
+  <button class="tab-btn" data-target="piano"><span class="dot"></span>KEYBOARD HERO</button>
+  <button class="tab-btn" data-target="typeordie"><span class="dot"></span>TYPE OR DIE</button>
+</div>
 
-<header>
-  <h1>📌 Notes on the Wall</h1>
-  <p>A public wall anyone can post to. Pick a name (or stay Anonymous) — notes post immediately and stay up permanently for everyone to see.</p>
-</header>
-
-<main>
-  <div class="composer">
-    <div class="name-row">
-      Posting as
-      <input type="text" id="usernameInput" placeholder="pick a name" maxlength="24">
-    </div>
-    <textarea id="messageInput" placeholder="What's on your mind?" maxlength="500"></textarea>
-    <div class="composer-footer">
-      <span class="char-count" id="charCount">500 left</span>
-      <button class="post-btn" id="postBtn">Post</button>
-    </div>
+<div id="stage">
+  <div class="app-pane" data-pane="notes">
+    <div class="loading-msg">loading notes on the wall…</div>
   </div>
+  <div class="app-pane" data-pane="piano">
+    <div class="loading-msg">loading keyboard hero…</div>
+  </div>
+  <div class="app-pane" data-pane="typeordie">
+    <div class="loading-msg">loading type or die…</div>
+  </div>
+</div>
 
-  <div class="wall" id="wall"></div>
-  <div class="empty-state" id="emptyState">No notes yet. Be the first to post one.</div>
-</main>
+<script>
+(function(){
+  "use strict";
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import {
-    getFirestore, collection, addDoc, query, orderBy, limit,
-    onSnapshot, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-  // Fill these in with the values from your Firebase project's
-  // web app config (Firebase Console > Project settings > Your apps).
-  const firebaseConfig = {
-    apiKey: "AIzaSyDRFuxwzwDIxo7Eunffk6XexHPDd8UYmHE",
-    authDomain: "notes-on-the-wall.firebaseapp.com",
-    projectId: "notes-on-the-wall",
-    storageBucket: "notes-on-the-wall.firebasestorage.app",
-    messagingSenderId: "220270159224",
-    appId: "1:220270159224:web:14d8143aee53f52cd1d48d"
+  const SOURCES = {
+    notes: "message-board.html",
+    piano: "piano-hero.html",
+    typeordie: "type-or-die.html"
   };
 
-  const USERNAME_KEY = 'notesWall.username';
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panes = {};
+  document.querySelectorAll('.app-pane').forEach(p => { panes[p.dataset.pane] = p; });
 
-  const usernameInput = document.getElementById('usernameInput');
-  const messageInput = document.getElementById('messageInput');
-  const postBtn = document.getElementById('postBtn');
-  const wall = document.getElementById('wall');
-  const emptyState = document.getElementById('emptyState');
-  const charCount = document.getElementById('charCount');
-  const statusBanner = document.getElementById('statusBanner');
+  const loaded = {};
 
-  function showStatus(text) {
-    statusBanner.textContent = text;
-    statusBanner.classList.add('show');
-  }
+  function activate(key){
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.target === key));
+    Object.keys(panes).forEach(k => panes[k].classList.toggle('active', k === key));
 
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  function timeAgo(date) {
-    if (!date) return 'just now';
-    const diff = Math.floor((Date.now() - date.getTime()) / 1000);
-    if (diff < 60) return 'just now';
-    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-  }
-
-  function renderNotes(docs) {
-    wall.innerHTML = '';
-    emptyState.style.display = docs.length ? 'none' : 'block';
-
-    docs.forEach(data => {
-      const note = document.createElement('div');
-      note.className = 'note';
-      note.innerHTML = `
-        <div class="note-header">
-          <span class="note-author">${escapeHtml(data.author)}</span>
-          <span class="note-time">${timeAgo(data.createdAt ? data.createdAt.toDate() : null)}</span>
-        </div>
-        <div class="note-body">${escapeHtml(data.text)}</div>
-      `;
-      wall.appendChild(note);
-    });
-  }
-
-  function updateCharCount() {
-    const remaining = 500 - messageInput.value.length;
-    charCount.textContent = `${remaining} left`;
-  }
-
-  let savedUsername = null;
-  try { savedUsername = localStorage.getItem(USERNAME_KEY); } catch {}
-  if (savedUsername) usernameInput.value = savedUsername;
-  updateCharCount();
-  messageInput.addEventListener('input', updateCharCount);
-
-  if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-    showStatus('This board isn’t connected to shared storage yet — add your Firebase config to start sharing notes with other visitors.');
-    postBtn.disabled = true;
-  } else {
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const notesRef = collection(db, 'notes');
-    const notesQuery = query(notesRef, orderBy('createdAt', 'desc'), limit(200));
-
-    onSnapshot(notesQuery, (snapshot) => {
-      renderNotes(snapshot.docs.map(d => d.data()));
-    }, (err) => {
-      showStatus('Could not load notes: ' + err.message);
-    });
-
-    async function postMessage() {
-      const text = messageInput.value.trim();
-      if (!text) return;
-
-      let author = usernameInput.value.trim();
-      if (!author) author = 'Anonymous';
-      try { localStorage.setItem(USERNAME_KEY, author); } catch {}
-
-      postBtn.disabled = true;
-      try {
-        await addDoc(notesRef, {
-          author,
-          text,
-          createdAt: serverTimestamp()
-        });
-        messageInput.value = '';
-        updateCharCount();
-      } catch (err) {
-        showStatus('Could not post note: ' + err.message);
-      } finally {
-        postBtn.disabled = false;
-      }
+    if(!loaded[key]){
+      loaded[key] = true;
+      const pane = panes[key];
+      const iframe = document.createElement('iframe');
+      iframe.src = SOURCES[key];
+      iframe.title = key;
+      iframe.setAttribute('allow', 'autoplay');
+      pane.innerHTML = '';
+      pane.appendChild(iframe);
     }
-
-    postBtn.addEventListener('click', postMessage);
-    messageInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) postMessage();
-    });
   }
+
+  tabs.forEach(t => {
+    t.addEventListener('click', () => activate(t.dataset.target));
+  });
+
+  // default to the first tab
+  activate('notes');
+})();
 </script>
 
 </body>
